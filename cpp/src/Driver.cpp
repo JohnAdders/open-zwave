@@ -3949,31 +3949,57 @@ void Driver::CommonAddNodeStatusRequestHandler
 		if( m_currentControllerCommand != NULL )
 		{
 			m_currentControllerCommand->m_controllerAdded = false;
-			m_currentControllerCommand->m_controllerCommandNode = _data[4];
-			/* make sure we dont overrun our buffer. Its ok to truncate */
-			uint8 length = _data[5];
-			if (length > 254) length = 254;
-			memcpy(&m_currentControllerCommand->m_controllerDeviceProtocolInfo, &_data[6], length);
-			m_currentControllerCommand->m_controllerDeviceProtocolInfoLength = length;
+			state = ControllerState_Waiting;
+			break;
 		}
-		//			AddNodeStop( _funcId );
-		//			sleep(1);
-		break;
-	}
-	case ADD_NODE_STATUS_ADDING_CONTROLLER:
-	{
-		Log::Write( LogLevel_Info, nodeId, "ADD_NODE_STATUS_ADDING_CONTROLLER");
-		Log::Write( LogLevel_Info, nodeId, "Adding controller ID %d", _data[4] );
-		/* Discovered all the CC's are sent in this packet as well:
-		 * position description
-		 * 4 - Node ID
-		 * 5 - Length
-		 * 6 - Basic Device Class
-		 * 7 - Generic Device Class
-		 * 8 - Specific Device Class
-		 * 9 to Length - Command Classes
-		 * Last pck - CRC
-		 */
+		case ADD_NODE_STATUS_NODE_FOUND:
+		{
+			Log::Write( LogLevel_Info, nodeId, "ADD_NODE_STATUS_NODE_FOUND" );
+			state = ControllerState_InProgress;
+			break;
+		}
+		case ADD_NODE_STATUS_ADDING_SLAVE:
+		{
+			Log::Write( LogLevel_Info, nodeId, "ADD_NODE_STATUS_ADDING_SLAVE" );
+			/* Discovered all the CC's are sent in this packet as well:
+			 * position description
+			 * 4 - Node ID
+			 * 5 - Length
+			 * 6 - Basic Device Class
+			 * 7 - Generic Device Class
+			 * 8 - Specific Device Class
+			 * 9 to Length - Command Classes
+			 * Last pck - CRC
+			 */
+			if( m_currentControllerCommand != NULL )
+			{
+				Log::Write( LogLevel_Info, nodeId, "Adding node ID %d - %s", _data[4], m_currentControllerCommand->m_controllerCommandArg ? "Secure" : "Non-Secure");
+				m_currentControllerCommand->m_controllerAdded = false;
+				m_currentControllerCommand->m_controllerCommandNode = _data[4];
+				/* make sure we dont overrun our buffer. Its ok to truncate */
+				uint8 length = _data[5];
+				if (length > 254) length = 254;
+				memcpy(&m_currentControllerCommand->m_controllerDeviceProtocolInfo, &_data[6], length);
+				m_currentControllerCommand->m_controllerDeviceProtocolInfoLength = length;
+			}
+//			AddNodeStop( _funcId );
+//			sleep(1);
+			break;
+		}
+		case ADD_NODE_STATUS_ADDING_CONTROLLER:
+		{
+			Log::Write( LogLevel_Info, nodeId, "ADD_NODE_STATUS_ADDING_CONTROLLER");
+			Log::Write( LogLevel_Info, nodeId, "Adding controller ID %d", _data[4] );
+			/* Discovered all the CC's are sent in this packet as well:
+			 * position description
+			 * 4 - Node ID
+			 * 5 - Length
+			 * 6 - Basic Device Class
+			 * 7 - Generic Device Class
+			 * 8 - Specific Device Class
+			 * 9 to Length - Command Classes
+			 * Last pck - CRC
+			 */
 
 
 		if( m_currentControllerCommand != NULL )

@@ -110,6 +110,22 @@ foreach my $group ($data->{CommandClass}->{133}->{Associations}->{Group})
 		}
 	}
 
+my $data = $xml->XMLin($_[0], ForceArray => [ 'Value' ]);
+# print output
+foreach my $valueItem ($data->{CommandClass}->{112}->{Value})
+	{
+		if (defined($valueItem))
+		{
+		foreach my $configuration (@{$valueItem})
+        	{
+			if ((defined($configuration->{type})) && (lc $configuration->{type} eq "list") && (not defined($configuration->{size})))
+                {
+                    LogError($_[0], 2, "Configuration of type list $configuration->{index} size not defined");
+                }
+             }
+		}
+	}
+
 }
 
 # check files match entries in manufacture_specific.xml 
@@ -181,7 +197,7 @@ foreach my $unreffile (keys %configfiles)
 
 sub PrettyPrintErrors() {
 	print "\n\nErrors: (Please Correct before Submitting to OZW)\n";
-	while ((my $key, my $value) = each \%errors) 
+	while ((my $key, my $value) = each %errors) 
 	{
 		foreach my $detail (@{$value}) 
 		{
@@ -193,7 +209,7 @@ sub PrettyPrintErrors() {
 
 sub PrettyPrintWarnings() {
 	print "\n\nWarnings: (Can be Ignored)\n";
-	while ((my $key, my $value) = each \%warnings) 
+	while ((my $key, my $value) = each %warnings) 
 	{
 		foreach my $detail (@{$value}) 
 		{
@@ -205,7 +221,7 @@ sub PrettyPrintWarnings() {
 
 sub XMLPrintErrors() {
 	my $numerrs  = 0;
-	while ((my $key, my $value) = each \%errors) 
+	while ((my $key, my $value) = each %errors) 
 	{
 		foreach my $detail (@{$value}) 
 		{
@@ -214,7 +230,7 @@ sub XMLPrintErrors() {
 	}
 	open(my $fh, '>', 'results/OZW_CheckConfig.xml') or die "Could not open file results\OZW_CheckConfig.xml $!";
 	print $fh "<testsuite failures=\"0\" assertions=\"\" name=\"OZW_CheckConfig\" tests=\"1\" errors=\"$numerrs\" time=\"\">\n";
-	while ((my $key, my $value) = each \%errors) 
+	while ((my $key, my $value) = each %errors) 
 	{
 		foreach my $detail (@{$value}) 
 		{
@@ -232,7 +248,7 @@ sub XMLPrintErrors() {
 
 sub XMLPrintWarnings() {
 	my $numerrs  = 0;
-	while ((my $key, my $value) = each \%warnings) 
+	while ((my $key, my $value) = each %warnings) 
 	{
 		foreach my $detail (@{$value}) 
 		{
@@ -241,7 +257,7 @@ sub XMLPrintWarnings() {
 	}
 	open(my $fh, '>', 'results/OZW_CheckConfigWarnings.xml') or die "Could not open file results\OZW_CheckConfig.xml $!";
 	print $fh "<testsuite failures=\"0\" assertions=\"\" name=\"OZW_CheckConfigWarnings\" tests=\"1\" errors=\"$numerrs\" time=\"\">\n";
-	while ((my $key, my $value) = each \%warnings) 
+	while ((my $key, my $value) = each %warnings) 
 	{
 		foreach my $detail (@{$value}) 
 		{
